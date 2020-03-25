@@ -1,18 +1,29 @@
-! Decalration of variables 
-  implicit none
-  integer :: n,incx,incy
-  double precision :: i,ix,iy
-  double precision :: alpha,x(:),y(:)
 
   program DaxpyProgram
+      implicit none
+      integer :: n,incx,incy
+      real :: alpha
+      real,dimension(:) :: x,y
+      n = 10
+      incx = 2
+      incy = 2
+      alpha = 4.
       call Daxpy(n, alpha, x, incx, y, incy)
       print *,'This is the result: ',y
+
   end Program DaxpyProgram
 
 
   SUBROUTINE Daxpy(n, alpha, x, incx, y, incy)
-  
-  if((incx.eq.1) .and. (incry.eq.1)) then
+      implicit none
+      integer, intent(in) :: n,incx,incy
+      real,dimension(:),intent(in) :: x
+      real,intent(in) :: alpha
+      real,dimension(:), intent(out):: y
+      !local variables
+      real :: i,ix,iy
+
+  if((incx.eq.1) .and. (incy.eq.1)) then
     do i =1,n
        y(i) = alpha*x(i) + y(i)
     enddo
