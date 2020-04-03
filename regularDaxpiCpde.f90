@@ -9,7 +9,7 @@ Program DaxpyProgram
       !initializing the variables i,alpha and n.
       i = 0
       alpha = 4.0
-      n = 5
+      n = 6
       
       !allocating a size of n x n memory to matrix x and y 
       allocate(x(n,n))
