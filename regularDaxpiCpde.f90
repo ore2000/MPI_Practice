@@ -3,68 +3,47 @@ Program DaxpyProgram
 
       implicit none
       real,dimension(:,:),allocatable :: x,y
-      integer i,j
+      integer i,j,alpha,n
       real :: start,finish
-  
-interface
-  SUBROUTINE Daxpy(x,y)
 
-      real,dimension(:,:),intent(in) :: x
-      real,dimension(:,:), intent(out):: y
-  end SUBROUTINE
-end interface
-
-call cpu_time(start)
- allocate(x(10,10))
- allocate(y(10,10))
-
-do i =1,10
- do j = 1,10
-   x(i,j) = (10.2*i)
-   y(i,j) = 10.2
-  enddo
-enddo
-
- call Daxpy(x, y)
- print *,'This is the result: '
- 
- do i =1,10 
-   do j = 1,10
-     print *,'Matrix(',i,',',j,')= ',y(i,j)
-   enddo
-enddo
-
-deallocate(x)
-deallocate(y)
-
-call cpu_time(finish)
-print *, 'Finished in time', (finish - start)
-end Program DaxpyProgram
-
-
- SUBROUTINE Daxpy(x,y)
-      implicit none
-      real,dimension(:,:),intent(in) :: x
-      real,dimension(:,:), intent(out):: y
-
-      !local variables
-      integer :: n
-      real :: alpha,ix,iy
-      integer :: incx,incy,i,j
- 
-      n = 10
+      !initializing the variables i,alpha and n.
+      i = 0
       alpha = 4.0
-      incx = 1
-      incy = 1
-      i=0
+      n = 10
+      
+      !allocating a size of n x n memory to matrix x and y 
+      allocate(x(n,n))
+      allocate(y(n,n))
 
-  if((incx.eq.1) .and.(incy.eq.1)) then
-    do i = 1,n
-        do j =1,n
-          y(i,j) = alpha*x(i,j) + y(i,j)
-        enddo
+      !Start timing
+      call cpu_time(start)
+
+      !do loop to initialize the x and y matrix
+      do i =1,n
+         do j = 1,n
+            x(i,j) = (10.2*i)
+            y(i,j) = 10.2
+         enddo
+      enddo
+     
+     !editing refilling the y matrix with scalar multiples of the x matrix
+         do i = 1,n
+            do j =1,n
+               y(i,j) = alpha*x(i,j) + y(i,j)
+            enddo
+         enddo
+   
+    !print out the results
+    print *,'This is the result: '
+    do i =1,10 
+       do j = 1,10
+          print *,'Matrix(',i,',',j,')= ',y(i,j)
+       enddo
     enddo
-  end if
-  return
-  end SUBROUTINE
-
+    !deallocate the x and y memory from device
+    deallocate(x)
+    deallocate(y)
+    !stop timing
+    call cpu_time(finish)
+    print *, 'Finished in time', (finish - start)
+end Program DaxpyProgram
