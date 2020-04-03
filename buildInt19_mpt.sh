@@ -20,4 +20,4 @@ cd /glade/scratch/obabatun/MPI_Practice
 
 module list
 make clean CORE=atmosphere
-make ifort CORE=atmosphere OPENACC=false PRECISION=single USE_PIO2=true
+make ifort CORE=atmosphere OPENACC=true PRECISION=single USE_PIO2=true
