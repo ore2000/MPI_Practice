@@ -15,7 +15,6 @@ alias ls='ls -l'
 
 
 #Your project folder here:
-#cd /glade/scratch/cmille73/TWC_Chey_MPT/MPAS
 cd /glade/scratch/obabatun/MPI_Practice
 
 
