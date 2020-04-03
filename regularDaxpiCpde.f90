@@ -9,7 +9,7 @@ Program DaxpyProgram
       !initializing the variables i,alpha and n.
       i = 0
       alpha = 4.0
-      n = 10
+      n = 5
       
       !allocating a size of n x n memory to matrix x and y 
       allocate(x(n,n))
@@ -35,8 +35,8 @@ Program DaxpyProgram
    
     !print out the results
     print *,'This is the result: '
-    do i =1,10 
-       do j = 1,10
+    do i =1,n 
+       do j = 1,n
           print *,'Matrix(',i,',',j,')= ',y(i,j)
        enddo
     enddo
