@@ -9,14 +9,14 @@ Program DaxpyProgram
       !initializing the variables i,alpha and n.
       i = 0
       alpha = 4.0
-      n = 6
+      n = 2048
       
       !allocating a size of n x n memory to matrix x and y 
       allocate(x(n,n))
       allocate(y(n,n))
 
       !Start timing
-      call cpu_time(start)
+      !call cpu_time(start)
 
       !do loop to initialize the x and y matrix
       do i =1,n
@@ -27,23 +27,27 @@ Program DaxpyProgram
       enddo
      
      !editing refilling the y matrix with scalar multiples of the x matrix
+     call cpu_time(start)
          do i = 1,n
             do j =1,n
                y(i,j) = alpha*x(i,j) + y(i,j)
             enddo
          enddo
-   
+   call cpu_time(finish)
     !print out the results
     print *,'This is the result: '
+
     do i =1,n 
        do j = 1,n
+       if( i .lt. 6 .and. j .lt. 6) then
           print *,'Matrix(',i,',',j,')= ',y(i,j)
+       endif
        enddo
     enddo
     !deallocate the x and y memory from device
     deallocate(x)
     deallocate(y)
     !stop timing
-    call cpu_time(finish)
+    !call cpu_time(finish)
     print *, 'Finished in time', (finish - start)
 end Program DaxpyProgram
