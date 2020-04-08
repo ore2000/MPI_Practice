@@ -1,7 +1,7 @@
 #! /bin/bash -1
 #
 #PBS -A NTDD0002
-#PBS -l walltime=0:01:00
+#PBS -l walltime=0:00:01
 #PBS -l select=1536:ncpus=36:mpiprocs=50
 #PBS -N Daxpy
 #PBS -o checker.out
