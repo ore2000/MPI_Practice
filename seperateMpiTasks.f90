@@ -1,24 +1,31 @@
 Program DaxpyProgram
+
       implicit none
       include 'mpif.h'
-      real,dimension(:,:),allocatable :: x,y
-      integer i,j,alpha,n
-      real :: start,finish
-      integer :: rank,mpi_size,ierror,messageItem,scatter_Data,gather_data
+      real,dimension(:,:),allocatable :: xTotal,xPart,yPart,yTotal
+      integer i,j,alpha,n,npart,iter,ix,iy
+      real :: start,finish,scatter_Data,scatter_Data2,gather
+      integer :: rank,procSize,ierror,messageItem,loops
 
       !initializing the variables i,alpha and n.
       i = 0
       alpha = 4.0
-      n = 50000
+      n = 100
+      npart = 10
       !allocating a size of n x n memory to matrix x and y 
-      allocate(x(n,n))
-      allocate(y(n,n))
+      allocate(xTotal(n,n))
+      allocate(yTotal(n,n))
+      allocate(xPart(npart,npart))
+      allocate(yPart(npart,npart))
+
 
       call MPI_INIT(ierror)
-      call MPI_COMM_SIZE(MPI_COMM_WORLD,mpi_size,ierror)
+      call MPI_COMM_SIZE(MPI_COMM_WORLD,procSize,ierror)
       call MPI_COMM_RANK(MPI_COMM_WORLD,rank,ierror)
-      call MPI_Scatter(y,10,MPI_INT,scatter_Data,10,MPI_INT,0,MPI_COMM_WORLD,ierror)
-      
+      call MPI_Scatter(yPart,25,MPI_REAL,yTotal,25,MPI_REAL,0,MPI_COMM_WORLD,ierror)
+      call MPI_Scatter(xPart,25,MPI_REAL,xTotal,25,MPI_REAL,0,MPI_COMM_WORLD,ierror)
+
+      loops = ((n**2))/procSize
       !do loop to initialize the x and y matrix
       do i =1,n
          do j = 1,n
@@ -27,16 +34,18 @@ Program DaxpyProgram
          enddo
       enddo
 
-     call MPI_GATHER(y,10,MPI_REAL,gather_data,10,MPI_REAL,0,MPI_COMM_WORLD,ierror)
+
+      iter = ((rank+1)*5)
+      do ix =((rank*5)+1),iter
+         do iy = 1,iter
+            y(ix,iy) = alpha*x(ix,iy) +y(ix,iy)
+         enddo
+      enddo
+    
+
+     call MPI_Gather(yPart,25,MPI_REAL,yTotal,25,MPI_REAL,0,MPI_COMM_WORLD,ierror)
      !Start timing
      call cpu_time(start)
-
-     !editing refilling the y matrix with scalar multiples of the x matrix
-     do i = 1,n
-        do j =1,n
-           y(i,j) = alpha*x(i,j) + y(i,j)
-        enddo
-     enddo
 
      !Stop timing.
      call cpu_time(finish)
@@ -47,7 +56,7 @@ Program DaxpyProgram
     do i =1,n 
        do j = 1,n
          if( i .lt. 6 .and. j .lt. 6) then
-          print *,'Matrix(',i,',',j,')= ',y(i,j)
+          print *,'Matrix(',i,',',j,')= ',y(i,j),' ', loops
        endif
        enddo
     enddo
