@@ -19,7 +19,7 @@ Program DaxpyProgram
       shareSize = (n**2)/procSize
       npart = sqrt(shareSize)
 
-      !allocating a size of n x n memory to matrix x and y
+       !allocating a size of n x n memory to matrix x and y
 
       if(rank.eq.0) then
       allocate(xTotal(n,n))
@@ -30,7 +30,7 @@ Program DaxpyProgram
 
       !do loop to initialize the x and y matrix
 
-      if(rank .eq.0) then 
+      if(rank .eq.0) then
       do i =1,n
          do j = 1,n
             xTotal(i,j) = (10.2*i)
@@ -38,27 +38,34 @@ Program DaxpyProgram
          enddo
       enddo
       endif
-      
+
       !Scatter array across all processes
-            
+
       call MPI_Scatter(yTotal,shareSize,MPI_REAL,yPart,shareSize,MPI_REAL,0,MPI_COMM_WORLD,ierror)
-      call MPI_Scatter(xTotal,shareSize,MPI_REAL,xPart,shareSize,MPI_REAL,0,MPI_COMM_WORLD,ierror) 
-      
+      call MPI_Scatter(xTotal,shareSize,MPI_REAL,xPart,shareSize,MPI_REAL,0,MPI_COMM_WORLD,ierror)
+
+
       !Start timing
       if(rank .eq. 0) then
       call cpu_time(start)
       endif
 
-      iter = ((rank+1)*npart)
-      do ix =((rank*npart)+1),iter
-        do iy = ((rank*npart)+1),iter
-            yPart(ix,iy) = alpha*xPart(ix,iy) +yPart(ix,iy)
-        enddo
+      !iter = ((rank+1)*npart)
+      !do ix =((rank*npart)+1),iter
+        !do iy = ((rank*npart)+1),iter
+            !yPart(ix,iy) = alpha*xPart(ix,iy) +yPart(ix,iy)
+        !enddo
+      !enddo
+
+      do ix = 1,npart
+         do iy = 1,npart
+             yPart(ix,iy) = alpha*xPart(ix,iy) + yPart(ix,iy)
+         enddo
       enddo
-      
-      
+
+
       call MPI_Gather(yPart,shareSize,MPI_REAL,yTotal,shareSize,MPI_REAL,0,MPI_COMM_WORLD,ierror)
-      
+
 
      !Stop timing.
      if(rank .eq. 0) then
