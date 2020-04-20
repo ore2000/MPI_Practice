@@ -16,6 +16,6 @@ module load openmpi
 cd /glade/scratch/obabatun/MPI_Practice
 
 #compile the code 
-mpif90 mpiDaxpyCode.f90 -o executable.exe
+mpif90 ProcMpi.f90 -o executable.exe
 
-mpirun -np 36 ./executable.exe
+mpirun -np 20 ./executable.exe
