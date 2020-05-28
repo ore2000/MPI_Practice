@@ -2,10 +2,11 @@ Program DaxpyProgram
 
       implicit none
       include 'mpif.h'
-      real,dimension(:),allocatable :: xTotal,xPart,yPart,yTotal
+      real,dimension(:),allocatable :: xTotal,yTotal
+      real,dimension(:),allocatable :: xPart,yPart
       integer i,j,alpha,n,npart,iter,ix,iy
       real :: start,finish,compare
-      integer :: rank,procSize,ierror,shareSize
+      integer :: rank,procSize,ierror,shareSize,dest,source,tag
       logical :: verification
 
       call MPI_INIT(ierror)
@@ -17,7 +18,7 @@ Program DaxpyProgram
       i = 0
       alpha = 4.0
       n = 2048
-      shareSize = ((n)/procSize) + 1
+      shareSize = (n/procSize)
       verification = .true.
       !allocating a size of n x n memory to matrix x and y
 
@@ -33,7 +34,7 @@ Program DaxpyProgram
       if(rank .eq.0) then 
          do i = 1,n
             xTotal(i) = (10.2*i)
-            yTotal(i) = 10.2
+            yTotal(i) = 10.2*i*i
          enddo
       endif
 
@@ -46,9 +47,30 @@ Program DaxpyProgram
      !Scatter array across all processes
 
      if(rank.eq.0) then
-      call MPI_Scatter(yTotal,shareSize,MPI_REAL,yPart,shareSize,MPI_REAL,0,MPI_COMM_WORLD,ierror)
-      call MPI_Scatter(xTotal,shareSize,MPI_REAL,xPart,shareSize,MPI_REAL,0,MPI_COMM_WORLD,ierror)
+      do i = 1,(procSize-1)
+           dest = i
+           tag = i
+           print *, 'About to start sending'
+           xPart = xTotal(((dest)*shareSize) + 1 : ((dest+1)*shareSize))
+           yPart = yTotal(((dest)*shareSize) + 1 : ((dest+1)*shareSize))
+           print *, 'Finished sharing'
+           call MPI_Isend(xPart,shareSize,MPI_FLOAT,dest,tag,MPI_COMM_WORLD,ierror)
+           tag = tag+1
+           print *, 'Sent x for process: ',dest
+           call MPI_Isend(yPart,shareSize,MPI_FLOAT,dest,tag,MPI_COMM_WORLD,ierror)
+           print *, 'Sent y for process: ',dest
+      enddo
+      print*, 'Just sent out the data'
      endif 
+
+
+     if(rank.ne.0) then
+        tag = rank
+        call MPI_Recv(xPart,shareSize,MPI_FLOAT,0,tag,MPI_COMM_WORLD,ierror)
+        tag = tag + 1
+        call MPI_Recv(yPart,shareSize,MPI_FLOAT,0,tag,MPI_COMM_WORLD,ierror)
+        print *, 'recieved data for process',rank
+     endif
 
      !Start timing
      if(rank .eq. 0) then
@@ -60,10 +82,24 @@ Program DaxpyProgram
              yPart(iy) = alpha*xPart(iy) + yPart(iy)
          endif
      enddo
-      
-            
-     call MPI_Gather(yPart,shareSize,MPI_REAL,yTotal,shareSize,MPI_REAL,0,MPI_COMM_WORLD,ierror)
-      
+     
+     if(rank .ne. 0) then
+        tag = rank
+        call MPI_SEND(xPart,shareSize,MPI_FLOAT,0,tag,MPI_COMM_WORLD,ierror)
+        tag = tag + 1 
+        call MPI_SEND(yPart,shareSize,MPI_FLOAT,0,tag,MPI_COMM_WORLD,ierror)
+     endif
+
+     if(rank .eq. 0) then
+       do i =1,procSize
+             source = i
+             tag = i
+             call MPI_Recv(xPart,shareSize,MPI_FLOAT,source,tag,MPI_COMM_WORLD,ierror)
+             tag = tag +1
+             call MPI_Recv(yPart,shareSize,MPI_FLOAT,source,tag,MPI_COMM_WORLD,ierror)
+             yTotal((source*shareSize) + 1 : ((source+1)*shareSize)) = yPart
+       enddo
+     endif
 
      !Stop timing.
      if(rank .eq. 0) then

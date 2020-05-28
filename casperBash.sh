@@ -1,10 +1,10 @@
-#! /bin/bash -1
+#!/bin/bash -l
 #
 #SBATCH --job-name = Daxpy
 #SBATCH --account =  NTDD0002
 #SBATCH --ntasks = 108
 #SBATCH --ntasks-per-node = 36
-#SBATCH --time = 00:10:00
+#SBATCH --time= 00:10:00
 #SBATCH --partition = dav
 #SBATCH --output = mpi_job.out.%j
 

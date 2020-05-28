@@ -9,7 +9,7 @@ Program DaxpyProgram
       !initializing the variables i,alpha and n.
       i = 0
       alpha = 4.0
-      n = 2048
+      n = 204800
       
       !allocating a size of n x n memory to matrix x and y 
       allocate(x(n))
@@ -20,8 +20,8 @@ Program DaxpyProgram
 
       !do loop to initialize the x and y matrix
       do i =1,n
-            x(i) = (10.2*i)
-            y(i) = 10.2
+            x(i) = 10.2*i
+            y(i) = 5.2*i*i
       enddo
 
      !Open a file to write all array results 
